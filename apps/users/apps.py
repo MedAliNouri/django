@@ -14,4 +14,4 @@ class UsersConfig(AppConfig):
         """
         Import signal handlers when app is ready.
         """
-        import apps.users.signals  # noqa
+        pass  # Signals removed with Celery

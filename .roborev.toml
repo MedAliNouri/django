@@ -1,0 +1,266 @@
+# Roborev Configuration
+# Continuous, non-invasive background code review for AI coding agents
+# https://www.roborev.io/
+
+[review]
+# Enable automatic review on every commit
+enabled = true
+
+# Number of parallel review workers
+workers = 4
+
+# Timeout for review operations (in seconds)
+timeout = 300
+
+# Auto-fix issues when possible
+auto_fix = false
+
+# Review scope
+scope = [
+    "apps/**/*.py",
+    "config/**/*.py",
+    "tests/**/*.py",
+    "manage.py",
+]
+
+# Exclude patterns
+exclude = [
+    "**/migrations/**",
+    "**/__pycache__/**",
+    "**/node_modules/**",
+    "**/.venv/**",
+    "**/staticfiles/**",
+    "**/mediafiles/**",
+    "**/*.pyc",
+]
+
+[review.checks]
+# Enable specific check types
+format = true
+lint = true
+type_check = true
+security = true
+complexity = true
+documentation = false
+
+[review.thresholds]
+# Complexity thresholds
+max_complexity = 10
+max_line_length = 100
+max_function_length = 50
+
+# Code quality thresholds
+min_test_coverage = 80
+
+[tools.ruff]
+enabled = true
+config = "pyproject.toml"
+auto_fix = false
+
+[tools.mypy]
+enabled = true
+config = "pyproject.toml"
+strict = true
+
+[tools.pytest]
+enabled = true
+run_on_review = true
+min_coverage = 80
+
+[tools.bandit]
+enabled = true
+severity = "medium"
+
+# Hooks - Run commands when review events occur
+[[hooks]]
+event = "review.started"
+command = "echo '🔍 Starting review for {repo_name} ({sha})'"
+
+[[hooks]]
+event = "review.completed"
+command = "echo '✅ Review completed for {repo_name} - Verdict: {verdict}'"
+
+[[hooks]]
+event = "review.failed"
+command = "echo '❌ Review failed for {repo_name}: {error}'"
+
+[[hooks]]
+event = "review.completed"
+command = "make validate"
+condition = "verdict == 'pass'"
+
+# Beads integration - Create task queue from review findings
+[[hooks]]
+event = "review.completed"
+type = "beads"
+enabled = true
+condition = "verdict == 'fail'"
+priority = "high"
+
+# Notifications
+[[hooks]]
+event = "review.completed"
+command = "notify-send 'Roborev' 'Review done for {repo_name}' -i dialog-information"
+condition = "verdict == 'pass'"
+
+[[hooks]]
+event = "review.failed"
+command = "notify-send 'Roborev' 'Review failed for {repo_name}' -i dialog-error -u critical"
+
+# Integration with CI/CD
+[ci]
+# Block push if review fails
+block_on_failure = false
+
+# Create GitHub check runs
+github_checks = true
+
+# Add review comments to PRs
+pr_comments = true
+
+# Django-specific settings
+[django]
+# Check for common Django anti-patterns
+check_migrations = true
+check_models = true
+check_views = true
+check_serializers = true
+check_urls = true
+
+# Security checks
+[security]
+# Check for security vulnerabilities
+check_secrets = true
+check_sql_injection = true
+check_xss = true
+check_csrf = true
+check_debug_mode = false
+
+# Patterns to flag as potential secrets
+secret_patterns = [
+    "SECRET_KEY",
+    "PASSWORD",
+    "API_KEY",
+    "TOKEN",
+    "PRIVATE_KEY",
+]
+
+# DRF-specific checks
+[drf]
+# Check REST API best practices
+check_permissions = true
+check_throttling = true
+check_pagination = true
+check_serializers = true
+check_viewsets = true
+
+# Performance checks
+[performance]
+# Check for performance issues
+check_n_plus_one = true
+check_missing_indexes = true
+check_large_migrations = true
+check_slow_queries = false
+
+# Documentation checks
+[documentation]
+# Require docstrings
+require_module_docstrings = false
+require_class_docstrings = false
+require_function_docstrings = false
+
+# Check for outdated documentation
+check_outdated_docs = false
+
+# Logging and reporting
+[logging]
+level = "INFO"
+format = "json"
+output = "~/.roborev/reviews.log"
+
+[reporting]
+# Generate review reports
+enabled = true
+format = ["json", "html"]
+output_dir = ".roborev/reports"
+
+# Store review metrics
+metrics = true
+
+# Ignore specific rules or patterns
+[ignore]
+# Ignore specific error codes
+codes = []
+
+# Ignore specific files
+files = [
+    "*/migrations/*",
+    "*/tests/fixtures/*",
+]
+
+# Ignore specific patterns
+patterns = []
+
+# Custom rules
+[[custom_rules]]
+name = "no_print_statements"
+pattern = "print\\("
+message = "Use logging instead of print statements"
+severity = "warning"
+files = ["apps/**/*.py", "config/**/*.py"]
+exclude = ["tests/**/*.py"]
+
+[[custom_rules]]
+name = "no_todo_comments"
+pattern = "# TODO|# FIXME"
+message = "TODO/FIXME comments should be converted to issues"
+severity = "info"
+
+[[custom_rules]]
+name = "require_type_hints"
+pattern = "def \\w+\\([^)]*\\):"
+message = "Functions should have type hints"
+severity = "warning"
+exclude = ["tests/**/*.py", "*/migrations/*"]
+
+# Git hooks configuration
+[git]
+# Pre-commit hook settings
+pre_commit = true
+pre_push = false
+
+# Staged files only
+staged_only = true
+
+# Integration with external services
+[integrations]
+# Sentry integration for error tracking
+sentry = false
+sentry_dsn = ""
+
+# Slack notifications
+slack = false
+slack_webhook = ""
+
+# GitHub integration
+github = true
+github_token = ""
+
+# Advanced settings
+[advanced]
+# Cache review results
+cache_enabled = true
+cache_ttl = 3600  # 1 hour
+
+# Parallel processing
+parallel = true
+max_workers = 4
+
+# Resource limits
+max_memory_mb = 1024
+max_cpu_percent = 50
+
+# Retry failed reviews
+retry_on_failure = true
+max_retries = 3
+retry_delay = 60  # seconds

@@ -52,7 +52,7 @@ WORKDIR /app
 COPY --chown=django:django . /app/
 
 # Create necessary directories
-RUN mkdir -p /app/staticfiles /app/mediafiles && \
+RUN mkdir -p /app/staticfiles /app/mediafiles /app/logs && \
     chown -R django:django /app
 
 # Switch to non-root user

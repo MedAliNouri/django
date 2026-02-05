@@ -325,8 +325,11 @@ LOGGING = {
     },
 }
 
-# Create logs directory if it doesn't exist
-(BASE_DIR / 'logs').mkdir(exist_ok=True)
+# Create logs directory if it doesn't exist (ignore permission errors in Docker)
+try:
+    (BASE_DIR / 'logs').mkdir(exist_ok=True)
+except (PermissionError, OSError):
+    pass  # Directory creation will be handled by Docker volume or entrypoint
 
 # Security Settings (will be overridden in prod.py)
 SECURE_BROWSER_XSS_FILTER = True

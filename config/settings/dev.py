@@ -31,6 +31,10 @@ DEBUG_TOOLBAR_CONFIG = {
     'SHOW_TEMPLATE_CONTEXT': True,
 }
 
+# Disable file logging in development (use console only)
+LOGGING['root']['handlers'] = ['console']
+LOGGING['handlers'].pop('file', None)  # Remove file handler
+
 # Database query logging in development
 LOGGING['loggers']['django.db.backends'] = {
     'handlers': ['console'],

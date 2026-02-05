@@ -1,4 +1,4 @@
-.PHONY: help build up down restart logs shell test lint format migrate makemigrations superuser clean
+.PHONY: help build up down restart logs shell test lint format migrate makemigrations superuser clean validate
 
 # Colors for output
 BLUE := \033[0;34m
@@ -107,6 +107,29 @@ type-check: ## Run type checking
 	@echo "$(BLUE)Running type checking...$(NC)"
 	docker-compose -f docker-compose.dev.yml exec web mypy .
 	@echo "$(GREEN)✓ Type checking completed$(NC)"
+
+format-check: ## Check code formatting without making changes
+	@echo "$(BLUE)Checking code formatting...$(NC)"
+	docker-compose -f docker-compose.dev.yml exec web ruff format --check apps config tests
+	@echo "$(GREEN)✓ Format check completed$(NC)"
+
+validate: ## Run complete validation suite (format check, lint, type-check, test)
+	@echo "$(BLUE)Running validation suite...$(NC)"
+	@echo "$(YELLOW)1/4 Checking code formatting...$(NC)"
+	@docker-compose -f docker-compose.dev.yml exec web ruff format --check apps config tests || (echo "$(RED)✗ Format check failed$(NC)" && exit 1)
+	@echo "$(GREEN)✓ Format check passed$(NC)"
+	@echo "$(YELLOW)2/4 Running linters...$(NC)"
+	@docker-compose -f docker-compose.dev.yml exec web ruff check apps config tests || (echo "$(RED)✗ Linting failed$(NC)" && exit 1)
+	@echo "$(GREEN)✓ Linting passed$(NC)"
+	@echo "$(YELLOW)3/4 Running type checking...$(NC)"
+	@docker-compose -f docker-compose.dev.yml exec web mypy apps config || (echo "$(RED)✗ Type checking failed$(NC)" && exit 1)
+	@echo "$(GREEN)✓ Type checking passed$(NC)"
+	@echo "$(YELLOW)4/4 Running tests...$(NC)"
+	@docker-compose -f docker-compose.dev.yml exec web pytest || (echo "$(RED)✗ Tests failed$(NC)" && exit 1)
+	@echo "$(GREEN)✓ Tests passed$(NC)"
+	@echo "$(GREEN)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"
+	@echo "$(GREEN)✓ All validation checks passed!$(NC)"
+	@echo "$(GREEN)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"
 
 check: lint type-check test ## Run all checks (lint, type-check, test)
 

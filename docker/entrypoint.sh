@@ -9,19 +9,32 @@ NC='\033[0m' # No Color
 
 echo -e "${GREEN}Starting Django application...${NC}"
 
-# Wait for PostgreSQL to be ready
+# Wait for PostgreSQL to be ready using Python
 echo -e "${YELLOW}Waiting for PostgreSQL...${NC}"
-while ! nc -z ${DB_HOST:-db} ${DB_PORT:-5432}; do
-  sleep 0.1
-done
-echo -e "${GREEN}PostgreSQL started${NC}"
+python << END
+import socket
+import time
+import sys
 
-# Wait for Redis to be ready
-echo -e "${YELLOW}Waiting for Redis...${NC}"
-while ! nc -z ${REDIS_HOST:-redis} ${REDIS_PORT:-6379}; do
-  sleep 0.1
-done
-echo -e "${GREEN}Redis started${NC}"
+host = "${DB_HOST:-db}"
+port = int("${DB_PORT:-5432}")
+timeout = 60
+start_time = time.time()
+
+while True:
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(1)
+        sock.connect((host, port))
+        sock.close()
+        break
+    except (socket.error, socket.timeout):
+        if time.time() - start_time > timeout:
+            print(f"Timeout waiting for {host}:{port}", file=sys.stderr)
+            sys.exit(1)
+        time.sleep(0.5)
+END
+echo -e "${GREEN}PostgreSQL started${NC}"
 
 # Run database migrations
 echo -e "${YELLOW}Running database migrations...${NC}"

@@ -5,8 +5,9 @@ This module abstracts database operations behind a clean interface.
 All database queries should go through repositories.
 """
 
-from typing import Optional, List
+
 from django.db.models import QuerySet
+
 from .models import User, UserProfile
 
 
@@ -18,7 +19,7 @@ class UserRepository:
     """
 
     @staticmethod
-    def get_by_id(user_id: str) -> Optional[User]:
+    def get_by_id(user_id: str) -> User | None:
         """Get user by ID."""
         try:
             return User.objects.get(id=user_id)
@@ -26,7 +27,7 @@ class UserRepository:
             return None
 
     @staticmethod
-    def get_by_email(email: str) -> Optional[User]:
+    def get_by_email(email: str) -> User | None:
         """Get user by email (case-insensitive)."""
         try:
             return User.objects.get(email__iexact=email)
@@ -41,11 +42,7 @@ class UserRepository:
     @staticmethod
     def create(email: str, password: str, **kwargs) -> User:
         """Create a new user."""
-        return User.objects.create_user(
-            email=email,
-            password=password,
-            **kwargs
-        )
+        return User.objects.create_user(email=email, password=password, **kwargs)
 
     @staticmethod
     def update(user: User, **kwargs) -> User:
@@ -78,16 +75,14 @@ class UserRepository:
     @staticmethod
     def search(query: str) -> QuerySet:
         """Search users by email or name."""
-        return User.objects.filter(
-            email__icontains=query
-        ) | User.objects.filter(
-            first_name__icontains=query
-        ) | User.objects.filter(
-            last_name__icontains=query
+        return (
+            User.objects.filter(email__icontains=query)
+            | User.objects.filter(first_name__icontains=query)
+            | User.objects.filter(last_name__icontains=query)
         )
 
     @staticmethod
-    def bulk_create(users: List[dict]) -> List[User]:
+    def bulk_create(users: list[dict]) -> list[User]:
         """Bulk create users."""
         user_objects = [User(**user_data) for user_data in users]
         return User.objects.bulk_create(user_objects)
@@ -99,7 +94,7 @@ class UserProfileRepository:
     """
 
     @staticmethod
-    def get_by_user(user: User) -> Optional[UserProfile]:
+    def get_by_user(user: User) -> UserProfile | None:
         """Get profile by user."""
         try:
             return UserProfile.objects.get(user=user)

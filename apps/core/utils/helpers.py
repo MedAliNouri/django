@@ -7,10 +7,11 @@ This module provides common utility functions used across the application.
 import random
 import string
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
-from django.utils import timezone
+from typing import Any
+
 from django.core.cache import cache
 from django.db.models import QuerySet
+from django.utils import timezone
 
 
 def generate_random_string(length: int = 32, include_digits: bool = True, include_special: bool = False) -> str:
@@ -79,10 +80,10 @@ def truncate_string(text: str, length: int = 100, suffix: str = '...') -> str:
     """
     if len(text) <= length:
         return text
-    return text[:length - len(suffix)] + suffix
+    return text[: length - len(suffix)] + suffix
 
 
-def chunks(lst: List[Any], n: int) -> List[List[Any]]:
+def chunks(lst: list[Any], n: int) -> list[list[Any]]:
     """
     Yield successive n-sized chunks from list.
 
@@ -94,7 +95,7 @@ def chunks(lst: List[Any], n: int) -> List[List[Any]]:
         Chunks of the list
     """
     for i in range(0, len(lst), n):
-        yield lst[i:i + n]
+        yield lst[i : i + n]
 
 
 def get_or_set_cache(key: str, callback, timeout: int = 300) -> Any:
@@ -126,7 +127,7 @@ def invalidate_cache(pattern: str):
     cache.delete_pattern(pattern)
 
 
-def queryset_to_dict(queryset: QuerySet, key_field: str = 'id', value_field: Optional[str] = None) -> Dict:
+def queryset_to_dict(queryset: QuerySet, key_field: str = 'id', value_field: str | None = None) -> dict:
     """
     Convert queryset to dictionary.
 
@@ -143,7 +144,7 @@ def queryset_to_dict(queryset: QuerySet, key_field: str = 'id', value_field: Opt
     return {getattr(obj, key_field): obj for obj in queryset}
 
 
-def get_date_range(days: int = 7, end_date: Optional[datetime] = None) -> tuple:
+def get_date_range(days: int = 7, end_date: datetime | None = None) -> tuple:
     """
     Get date range for specified number of days.
 
@@ -160,7 +161,7 @@ def get_date_range(days: int = 7, end_date: Optional[datetime] = None) -> tuple:
     return start_date, end_date
 
 
-def merge_dicts(*dicts: Dict) -> Dict:
+def merge_dicts(*dicts: dict) -> dict:
     """
     Merge multiple dictionaries.
 

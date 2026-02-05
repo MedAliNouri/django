@@ -4,8 +4,7 @@ Core models module.
 This module contains base model classes that other apps can inherit from.
 """
 
-from django.db import models
-from apps.common.behaviors import TimeStampedModel, UUIDModel, SoftDeleteModel
+from apps.common.behaviors import SoftDeleteModel, TimeStampedModel, UUIDModel
 
 
 class BaseModel(UUIDModel, TimeStampedModel, SoftDeleteModel):
@@ -21,8 +20,8 @@ class BaseModel(UUIDModel, TimeStampedModel, SoftDeleteModel):
 
     def __str__(self):
         """Default string representation."""
-        return f"{self.__class__.__name__}({self.id})"
+        return f'{self.__class__.__name__}({self.id})'
 
     def __repr__(self):
         """Developer-friendly representation."""
-        return f"<{self.__class__.__name__} id={self.id}>"
+        return f'<{self.__class__.__name__} id={self.id}>'

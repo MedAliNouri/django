@@ -3,9 +3,10 @@ Tests for User services.
 """
 
 import pytest
-from apps.users.services import UserService
+
+from apps.core.exceptions import BusinessLogicError, ResourceConflictError
 from apps.users.models import User
-from apps.core.exceptions import ResourceConflictError, BusinessLogicError
+from apps.users.services import UserService
 
 
 @pytest.mark.django_db
@@ -27,11 +28,7 @@ class TestUserService:
 
     def test_update_user(self, user):
         """Test updating user."""
-        updated = UserService.update_user(
-            user,
-            first_name='Updated',
-            last_name='Name'
-        )
+        updated = UserService.update_user(user, first_name='Updated', last_name='Name')
 
         assert updated.first_name == 'Updated'
         assert updated.last_name == 'Name'

@@ -3,6 +3,7 @@ Tests for User selectors.
 """
 
 import pytest
+
 from apps.users import selectors
 
 

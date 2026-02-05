@@ -6,6 +6,7 @@ V2 might have enhanced features or different behavior.
 """
 
 from apps.users.api.v1.views import UserViewSet as UserViewSetV1
+
 from .serializers import UserDetailSerializerV2
 
 

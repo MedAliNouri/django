@@ -4,15 +4,16 @@ Custom type hints for the application.
 This module provides type aliases and custom types for better type safety.
 """
 
-from typing import TypeVar, Dict, Any, List, Optional
+from typing import Any, Optional, TypeVar
+
 from django.db.models import Model, QuerySet
 
 # Generic model type
 ModelType = TypeVar('ModelType', bound=Model)
 
 # Common type aliases
-JSONDict = Dict[str, Any]
-JSONList = List[JSONDict]
+JSONDict = dict[str, Any]
+JSONList = list[JSONDict]
 OptionalStr = Optional[str]
 OptionalInt = Optional[int]
 

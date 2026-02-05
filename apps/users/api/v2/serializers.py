@@ -7,9 +7,9 @@ In v2, we might have enhanced features or different response formats.
 
 from apps.users.api.v1.serializers import *
 
-
 # V2 might have enhanced serializers with additional fields
 # or different validation logic
+
 
 class UserDetailSerializerV2(UserDetailSerializer):
     """
@@ -17,4 +17,5 @@ class UserDetailSerializerV2(UserDetailSerializer):
 
     Could include additional computed fields, relationships, etc.
     """
+
     pass

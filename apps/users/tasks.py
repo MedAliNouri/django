@@ -4,10 +4,11 @@ Celery tasks for User operations.
 This module contains asynchronous tasks for User-related operations.
 """
 
-from celery import shared_task
-from django.core.mail import send_mail
-from django.conf import settings
 import logging
+
+from celery import shared_task
+from django.conf import settings
+from django.core.mail import send_mail
 
 logger = logging.getLogger(__name__)
 
@@ -43,10 +44,10 @@ def send_welcome_email(self, user_id):
             fail_silently=False,
         )
 
-        logger.info(f"Welcome email sent to {user.email}")
+        logger.info(f'Welcome email sent to {user.email}')
 
     except Exception as exc:
-        logger.error(f"Failed to send welcome email: {exc}")
+        logger.error(f'Failed to send welcome email: {exc}')
         raise self.retry(exc=exc, countdown=60)
 
 
@@ -66,7 +67,7 @@ def send_verification_email(self, user_id, verification_token):
 
         subject = 'Verify Your Email Address'
         # In production, this would be a proper URL
-        verification_url = f"https://example.com/verify/{verification_token}"
+        verification_url = f'https://example.com/verify/{verification_token}'
         message = f"""
         Hello {user.get_full_name()},
 
@@ -86,10 +87,10 @@ def send_verification_email(self, user_id, verification_token):
             fail_silently=False,
         )
 
-        logger.info(f"Verification email sent to {user.email}")
+        logger.info(f'Verification email sent to {user.email}')
 
     except Exception as exc:
-        logger.error(f"Failed to send verification email: {exc}")
+        logger.error(f'Failed to send verification email: {exc}')
         raise self.retry(exc=exc, countdown=60)
 
 
@@ -101,17 +102,16 @@ def cleanup_unverified_users():
     This task should be run periodically (e.g., daily via Celery Beat).
     """
     from datetime import timedelta
+
     from django.utils import timezone
+
     from .models import User
 
     cutoff_date = timezone.now() - timedelta(days=30)
 
-    deleted_count = User.objects.filter(
-        is_verified=False,
-        created_at__lt=cutoff_date
-    ).delete()[0]
+    deleted_count = User.objects.filter(is_verified=False, created_at__lt=cutoff_date).delete()[0]
 
-    logger.info(f"Cleaned up {deleted_count} unverified users")
+    logger.info(f'Cleaned up {deleted_count} unverified users')
     return deleted_count
 
 
@@ -130,7 +130,7 @@ def send_password_reset_email(user_id, reset_token):
         user = User.objects.get(id=user_id)
 
         subject = 'Reset Your Password'
-        reset_url = f"https://example.com/reset-password/{reset_token}"
+        reset_url = f'https://example.com/reset-password/{reset_token}'
         message = f"""
         Hello {user.get_full_name()},
 
@@ -152,7 +152,7 @@ def send_password_reset_email(user_id, reset_token):
             fail_silently=False,
         )
 
-        logger.info(f"Password reset email sent to {user.email}")
+        logger.info(f'Password reset email sent to {user.email}')
 
     except Exception as exc:
-        logger.error(f"Failed to send password reset email: {exc}")
+        logger.error(f'Failed to send password reset email: {exc}')

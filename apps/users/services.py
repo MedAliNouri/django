@@ -6,16 +6,15 @@ Services handle complex operations, validations, and orchestrate
 between repositories and other services.
 """
 
-from typing import Optional, Dict, Any
+from django.core.cache import cache
 from django.db import transaction
 from django.utils import timezone
-from django.core.mail import send_mail
-from django.conf import settings
-from django.core.cache import cache
-from .models import User, UserProfile
-from .repositories import UserRepository, UserProfileRepository
-from .selectors import user_exists, get_user_by_email
+
 from apps.core.exceptions import BusinessLogicError, ResourceConflictError
+
+from .models import User, UserProfile
+from .repositories import UserProfileRepository, UserRepository
+from .selectors import user_exists
 
 
 class UserService:
@@ -27,13 +26,7 @@ class UserService:
 
     @staticmethod
     @transaction.atomic
-    def create_user(
-        email: str,
-        password: str,
-        first_name: str = '',
-        last_name: str = '',
-        **extra_fields
-    ) -> User:
+    def create_user(email: str, password: str, first_name: str = '', last_name: str = '', **extra_fields) -> User:
         """
         Create a new user with profile.
 
@@ -52,15 +45,11 @@ class UserService:
         """
         # Validate email availability
         if user_exists(email):
-            raise ResourceConflictError(f"User with email {email} already exists")
+            raise ResourceConflictError(f'User with email {email} already exists')
 
         # Create user
         user = UserRepository.create(
-            email=email,
-            password=password,
-            first_name=first_name,
-            last_name=last_name,
-            **extra_fields
+            email=email, password=password, first_name=first_name, last_name=last_name, **extra_fields
         )
 
         # Create profile
@@ -71,6 +60,7 @@ class UserService:
 
         # Send welcome email (async via Celery)
         from .tasks import send_welcome_email
+
         send_welcome_email.delay(user.id)
 
         return user
@@ -92,7 +82,7 @@ class UserService:
         if 'email' in update_fields:
             new_email = update_fields['email']
             if new_email != user.email and user_exists(new_email):
-                raise ResourceConflictError(f"Email {new_email} is already taken")
+                raise ResourceConflictError(f'Email {new_email} is already taken')
 
         # Update user
         updated_user = UserRepository.update(user, **update_fields)
@@ -141,7 +131,7 @@ class UserService:
             BusinessLogicError: If user is superuser and trying to delete
         """
         if user.is_superuser and not hard:
-            raise BusinessLogicError("Cannot soft delete superuser")
+            raise BusinessLogicError('Cannot soft delete superuser')
 
         UserRepository.delete(user, hard=hard)
 
@@ -165,7 +155,7 @@ class UserService:
             BusinessLogicError: If old password is incorrect
         """
         if not user.check_password(old_password):
-            raise BusinessLogicError("Current password is incorrect")
+            raise BusinessLogicError('Current password is incorrect')
 
         user.set_password(new_password)
         user.save(update_fields=['password'])
@@ -209,11 +199,7 @@ class UserService:
         Returns:
             Updated User instance
         """
-        return UserRepository.update(
-            user,
-            is_verified=True,
-            email_verified_at=timezone.now()
-        )
+        return UserRepository.update(user, is_verified=True, email_verified_at=timezone.now())
 
     @staticmethod
     def update_last_login(user: User, ip_address: str) -> User:
@@ -227,11 +213,7 @@ class UserService:
         Returns:
             Updated User instance
         """
-        return UserRepository.update(
-            user,
-            last_login=timezone.now(),
-            last_login_ip=ip_address
-        )
+        return UserRepository.update(user, last_login=timezone.now(), last_login_ip=ip_address)
 
 
 class UserBulkService:
@@ -254,12 +236,12 @@ class UserBulkService:
         # Validate all emails are unique
         emails = [user_data['email'] for user_data in users_data]
         if len(emails) != len(set(emails)):
-            raise BusinessLogicError("Duplicate emails in bulk create")
+            raise BusinessLogicError('Duplicate emails in bulk create')
 
         # Check if any email already exists
         for email in emails:
             if user_exists(email):
-                raise ResourceConflictError(f"Email {email} already exists")
+                raise ResourceConflictError(f'Email {email} already exists')
 
         # Create users
         users = UserRepository.bulk_create(users_data)
@@ -292,10 +274,7 @@ class UserBulkService:
             count = users.count()
             users.delete()
         else:
-            count = users.update(
-                is_deleted=True,
-                deleted_at=timezone.now()
-            )
+            count = users.update(is_deleted=True, deleted_at=timezone.now())
 
         # Invalidate cache
         cache.delete('user_stats')

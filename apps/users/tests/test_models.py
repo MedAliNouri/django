@@ -42,7 +42,7 @@ class TestUserModel:
     def test_get_full_name(self, user):
         """Test get_full_name method."""
         full_name = user.get_full_name()
-        assert full_name == f"{user.first_name} {user.last_name}"
+        assert full_name == f'{user.first_name} {user.last_name}'
 
     def test_get_short_name(self, user):
         """Test get_short_name method."""

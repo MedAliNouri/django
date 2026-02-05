@@ -5,9 +5,10 @@ This module provides middleware for correlation IDs, request logging,
 and other cross-cutting concerns.
 """
 
-import uuid
-import time
 import logging
+import time
+import uuid
+
 from django.utils.deprecation import MiddlewareMixin
 
 logger = logging.getLogger(__name__)
@@ -30,9 +31,7 @@ class CorrelationIDMiddleware(MiddlewareMixin):
         If the client provides a correlation ID in the header, use it.
         Otherwise, generate a new one.
         """
-        correlation_id = request.META.get(
-            f'HTTP_{self.CORRELATION_ID_HEADER.upper().replace("-", "_")}'
-        )
+        correlation_id = request.META.get(f'HTTP_{self.CORRELATION_ID_HEADER.upper().replace("-", "_")}')
 
         if not correlation_id:
             correlation_id = str(uuid.uuid4())
@@ -63,7 +62,7 @@ class RequestLoggingMiddleware(MiddlewareMixin):
         request._request_start_time = time.time()
 
         logger.info(
-            f"Request started: {request.method} {request.path}",
+            f'Request started: {request.method} {request.path}',
             extra={
                 'method': request.method,
                 'path': request.path,
@@ -72,7 +71,7 @@ class RequestLoggingMiddleware(MiddlewareMixin):
                 'correlation_id': getattr(request, 'correlation_id', None),
                 'ip_address': self.get_client_ip(request),
                 'user_agent': request.META.get('HTTP_USER_AGENT', ''),
-            }
+            },
         )
 
     def process_response(self, request, response):
@@ -83,7 +82,7 @@ class RequestLoggingMiddleware(MiddlewareMixin):
             duration = time.time() - request._request_start_time
 
             logger.info(
-                f"Request completed: {request.method} {request.path} - {response.status_code}",
+                f'Request completed: {request.method} {request.path} - {response.status_code}',
                 extra={
                     'method': request.method,
                     'path': request.path,
@@ -92,7 +91,7 @@ class RequestLoggingMiddleware(MiddlewareMixin):
                     'user': str(request.user) if hasattr(request, 'user') else 'Anonymous',
                     'correlation_id': getattr(request, 'correlation_id', None),
                     'ip_address': self.get_client_ip(request),
-                }
+                },
             )
 
         return response
@@ -121,9 +120,7 @@ class RequestIDMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
         """Add request ID to request."""
-        request_id = request.META.get(
-            f'HTTP_{self.REQUEST_ID_HEADER.upper().replace("-", "_")}'
-        )
+        request_id = request.META.get(f'HTTP_{self.REQUEST_ID_HEADER.upper().replace("-", "_")}')
 
         if not request_id:
             request_id = str(uuid.uuid4())

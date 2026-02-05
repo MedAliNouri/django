@@ -5,9 +5,10 @@ This module provides pagination classes with consistent metadata
 in API responses.
 """
 
+from collections import OrderedDict
+
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from collections import OrderedDict
 
 
 class CustomPageNumberPagination(PageNumberPagination):
@@ -45,28 +46,43 @@ class CustomPageNumberPagination(PageNumberPagination):
             }
         }
         """
-        return Response(OrderedDict([
-            ('success', True),
-            ('data', data),
-            ('meta', OrderedDict([
-                ('pagination', OrderedDict([
-                    ('page', self.page.number),
-                    ('page_size', self.get_page_size(self.request)),
-                    ('total_count', self.page.paginator.count),
-                    ('total_pages', self.page.paginator.num_pages),
-                    ('has_next', self.page.has_next()),
-                    ('has_previous', self.page.has_previous()),
-                    ('next', self.get_next_link()),
-                    ('previous', self.get_previous_link()),
-                ]))
-            ]))
-        ]))
+        return Response(
+            OrderedDict(
+                [
+                    ('success', True),
+                    ('data', data),
+                    (
+                        'meta',
+                        OrderedDict(
+                            [
+                                (
+                                    'pagination',
+                                    OrderedDict(
+                                        [
+                                            ('page', self.page.number),
+                                            ('page_size', self.get_page_size(self.request)),
+                                            ('total_count', self.page.paginator.count),
+                                            ('total_pages', self.page.paginator.num_pages),
+                                            ('has_next', self.page.has_next()),
+                                            ('has_previous', self.page.has_previous()),
+                                            ('next', self.get_next_link()),
+                                            ('previous', self.get_previous_link()),
+                                        ]
+                                    ),
+                                )
+                            ]
+                        ),
+                    ),
+                ]
+            )
+        )
 
 
 class SmallPageNumberPagination(CustomPageNumberPagination):
     """
     Smaller page size for lists that typically have fewer items.
     """
+
     page_size = 10
     max_page_size = 50
 
@@ -75,5 +91,6 @@ class LargePageNumberPagination(CustomPageNumberPagination):
     """
     Larger page size for bulk data retrieval.
     """
+
     page_size = 50
     max_page_size = 200

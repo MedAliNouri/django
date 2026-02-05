@@ -5,14 +5,16 @@ This module contains all read/query logic for the User domain.
 Selectors are pure functions that return data without side effects.
 """
 
-from typing import Optional, List, Dict, Any
-from django.db.models import QuerySet, Count, Q
+from typing import Any
+
 from django.core.cache import cache
+from django.db.models import Q, QuerySet
+
 from .models import User, UserProfile
-from .repositories import UserRepository, UserProfileRepository
+from .repositories import UserProfileRepository, UserRepository
 
 
-def get_user_by_id(user_id: str) -> Optional[User]:
+def get_user_by_id(user_id: str) -> User | None:
     """
     Get user by ID.
 
@@ -25,7 +27,7 @@ def get_user_by_id(user_id: str) -> Optional[User]:
     return UserRepository.get_by_id(user_id)
 
 
-def get_user_by_email(email: str) -> Optional[User]:
+def get_user_by_email(email: str) -> User | None:
     """
     Get user by email.
 
@@ -52,9 +54,7 @@ def user_exists(email: str) -> bool:
 
 
 def get_user_list(
-    is_active: Optional[bool] = None,
-    is_verified: Optional[bool] = None,
-    search: Optional[str] = None
+    is_active: bool | None = None, is_verified: bool | None = None, search: str | None = None
 ) -> QuerySet:
     """
     Get list of users with optional filters.
@@ -77,15 +77,13 @@ def get_user_list(
 
     if search:
         queryset = queryset.filter(
-            Q(email__icontains=search) |
-            Q(first_name__icontains=search) |
-            Q(last_name__icontains=search)
+            Q(email__icontains=search) | Q(first_name__icontains=search) | Q(last_name__icontains=search)
         )
 
     return queryset.select_related('profile').order_by('-created_at')
 
 
-def get_user_with_profile(user_id: str) -> Optional[User]:
+def get_user_with_profile(user_id: str) -> User | None:
     """
     Get user with profile prefetched.
 
@@ -101,7 +99,7 @@ def get_user_with_profile(user_id: str) -> Optional[User]:
         return None
 
 
-def get_user_profile(user: User) -> Optional[UserProfile]:
+def get_user_profile(user: User) -> UserProfile | None:
     """
     Get user profile.
 
@@ -114,7 +112,7 @@ def get_user_profile(user: User) -> Optional[UserProfile]:
     return UserProfileRepository.get_by_user(user)
 
 
-def get_user_stats() -> Dict[str, Any]:
+def get_user_stats() -> dict[str, Any]:
     """
     Get user statistics.
 
@@ -168,14 +166,12 @@ def get_recent_users(days: int = 7) -> QuerySet:
     Returns:
         QuerySet of recent users
     """
-    from django.utils import timezone
     from datetime import timedelta
 
+    from django.utils import timezone
+
     since = timezone.now() - timedelta(days=days)
-    return User.objects.filter(
-        created_at__gte=since,
-        is_deleted=False
-    ).order_by('-created_at')
+    return User.objects.filter(created_at__gte=since, is_deleted=False).order_by('-created_at')
 
 
 def is_email_available(email: str) -> bool:

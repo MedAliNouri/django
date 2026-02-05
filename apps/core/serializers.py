@@ -6,7 +6,6 @@ for all API serializers.
 """
 
 from rest_framework import serializers
-from apps.common.behaviors import TimeStampedModel
 
 
 class BaseModelSerializer(serializers.ModelSerializer):
@@ -42,10 +41,7 @@ class WriteableModelSerializer(BaseModelSerializer):
         Override this method in subclasses to specify a read_serializer_class.
         """
         if hasattr(self.Meta, 'read_serializer_class'):
-            return self.Meta.read_serializer_class(
-                instance,
-                context=self.context
-            ).data
+            return self.Meta.read_serializer_class(instance, context=self.context).data
         return super().to_representation(instance)
 
 
@@ -53,4 +49,5 @@ class EmptySerializer(serializers.Serializer):
     """
     Empty serializer for actions that don't require input.
     """
+
     pass

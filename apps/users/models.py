@@ -5,8 +5,9 @@ This module contains the custom User model and related models.
 """
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-from django.db import models
 from django.core.validators import EmailValidator
+from django.db import models
+
 from apps.core.models import BaseModel
 
 
@@ -70,12 +71,7 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
     - Extended profile fields
     """
 
-    email = models.EmailField(
-        max_length=255,
-        unique=True,
-        validators=[EmailValidator()],
-        db_index=True
-    )
+    email = models.EmailField(max_length=255, unique=True, validators=[EmailValidator()], db_index=True)
     first_name = models.CharField(max_length=150, blank=True)
     last_name = models.CharField(max_length=150, blank=True)
 
@@ -115,7 +111,7 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
         """
         Return the first_name plus the last_name, with a space in between.
         """
-        full_name = f"{self.first_name} {self.last_name}".strip()
+        full_name = f'{self.first_name} {self.last_name}'.strip()
         return full_name or self.email
 
     def get_short_name(self):
@@ -137,11 +133,7 @@ class UserProfile(BaseModel):
     Separated from User model to keep User model focused on authentication.
     """
 
-    user = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE,
-        related_name='profile'
-    )
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
 
     company = models.CharField(max_length=255, blank=True)
     job_title = models.CharField(max_length=255, blank=True)
@@ -164,4 +156,4 @@ class UserProfile(BaseModel):
         verbose_name_plural = 'User Profiles'
 
     def __str__(self):
-        return f"Profile of {self.user.email}"
+        return f'Profile of {self.user.email}'

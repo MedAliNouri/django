@@ -5,9 +5,9 @@ This module provides custom renderers that wrap all API responses
 in a consistent envelope format.
 """
 
-from rest_framework.renderers import JSONRenderer
-from rest_framework.utils.serializer_helpers import ReturnDict, ReturnList
 from collections import OrderedDict
+
+from rest_framework.renderers import JSONRenderer
 
 
 class CustomJSONRenderer(JSONRenderer):
@@ -43,20 +43,11 @@ class CustomJSONRenderer(JSONRenderer):
                 return super().render(data, accepted_media_type, renderer_context)
 
             # If not already formatted, wrap it
-            envelope = OrderedDict([
-                ('success', False),
-                ('data', None),
-                ('errors', data),
-                ('meta', OrderedDict())
-            ])
+            envelope = OrderedDict([('success', False), ('data', None), ('errors', data), ('meta', OrderedDict())])
             return super().render(envelope, accepted_media_type, renderer_context)
 
         # Wrap successful responses
-        envelope = OrderedDict([
-            ('success', True),
-            ('data', data),
-            ('meta', OrderedDict())
-        ])
+        envelope = OrderedDict([('success', True), ('data', data), ('meta', OrderedDict())])
 
         return super().render(envelope, accepted_media_type, renderer_context)
 
@@ -67,4 +58,5 @@ class PlainJSONRenderer(JSONRenderer):
 
     Use this for specific endpoints that need unwrapped responses.
     """
+
     pass

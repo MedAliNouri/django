@@ -6,6 +6,7 @@ configuration, task routing, and error handling.
 """
 
 import os
+
 from celery import Celery
 from celery.signals import setup_logging
 from django.conf import settings
@@ -27,7 +28,9 @@ app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 def config_loggers(*args, **kwargs):
     """Configure Celery logging to use Django logging configuration."""
     from logging.config import dictConfig
+
     from django.conf import settings
+
     dictConfig(settings.LOGGING)
 
 

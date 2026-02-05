@@ -5,14 +5,12 @@ This module provides base view classes with common functionality
 and best practices.
 """
 
-from rest_framework import viewsets, status
-from rest_framework.decorators import action
+from django.core.cache import cache
+from django.db import connection
+from rest_framework import status, viewsets
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
-from django.db import connection
-from django.core.cache import cache
-import redis
 
 
 class BaseModelViewSet(viewsets.ModelViewSet):
@@ -40,10 +38,7 @@ class BaseModelViewSet(viewsets.ModelViewSet):
                 'list': ListUserSerializer,
             }
         """
-        return self.serializer_classes.get(
-            self.action,
-            super().get_serializer_class()
-        )
+        return self.serializer_classes.get(self.action, super().get_serializer_class())
 
     def get_permissions(self):
         """
@@ -56,10 +51,7 @@ class BaseModelViewSet(viewsets.ModelViewSet):
             }
         """
         try:
-            return [
-                permission()
-                for permission in self.permission_classes_by_action[self.action]
-            ]
+            return [permission() for permission in self.permission_classes_by_action[self.action]]
         except KeyError:
             return super().get_permissions()
 
@@ -102,48 +94,32 @@ class HealthCheckView(APIView):
         """
         Check health of database, cache, and application.
         """
-        health_status = {
-            'status': 'healthy',
-            'checks': {}
-        }
+        health_status = {'status': 'healthy', 'checks': {}}
         overall_healthy = True
 
         # Check database
         try:
             connection.ensure_connection()
-            health_status['checks']['database'] = {
-                'status': 'healthy',
-                'message': 'Database connection successful'
-            }
+            health_status['checks']['database'] = {'status': 'healthy', 'message': 'Database connection successful'}
         except Exception as e:
             overall_healthy = False
-            health_status['checks']['database'] = {
-                'status': 'unhealthy',
-                'message': str(e)
-            }
+            health_status['checks']['database'] = {'status': 'unhealthy', 'message': str(e)}
 
         # Check Redis/Cache
         try:
             cache.set('health_check', 'ok', 10)
             cache_value = cache.get('health_check')
             if cache_value == 'ok':
-                health_status['checks']['cache'] = {
-                    'status': 'healthy',
-                    'message': 'Cache connection successful'
-                }
+                health_status['checks']['cache'] = {'status': 'healthy', 'message': 'Cache connection successful'}
             else:
                 raise Exception('Cache read/write failed')
         except Exception as e:
             overall_healthy = False
-            health_status['checks']['cache'] = {
-                'status': 'unhealthy',
-                'message': str(e)
-            }
+            health_status['checks']['cache'] = {'status': 'unhealthy', 'message': str(e)}
 
         # Set overall status
         health_status['status'] = 'healthy' if overall_healthy else 'unhealthy'
 
         return Response(
-            health_status,
-            status=status.HTTP_200_OK if overall_healthy else status.HTTP_503_SERVICE_UNAVAILABLE
+            health_status, status=status.HTTP_200_OK if overall_healthy else status.HTTP_503_SERVICE_UNAVAILABLE
         )

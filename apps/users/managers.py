@@ -4,9 +4,10 @@ Custom model managers for User models.
 This module provides custom querysets and managers for advanced querying.
 """
 
+from datetime import timedelta
+
 from django.db import models
 from django.utils import timezone
-from datetime import timedelta
 
 
 class UserQuerySet(models.QuerySet):
@@ -40,9 +41,9 @@ class UserQuerySet(models.QuerySet):
         Search users by email, first name, or last name.
         """
         return self.filter(
-            models.Q(email__icontains=query) |
-            models.Q(first_name__icontains=query) |
-            models.Q(last_name__icontains=query)
+            models.Q(email__icontains=query)
+            | models.Q(first_name__icontains=query)
+            | models.Q(last_name__icontains=query)
         )
 
     def with_profile(self):

@@ -5,19 +5,20 @@ This module provides a custom exception handler that wraps all API responses
 in a consistent envelope format with proper error handling.
 """
 
-from rest_framework.views import exception_handler
-from rest_framework.response import Response
-from rest_framework import status
+import logging
+
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.http import Http404
+from rest_framework import status
 from rest_framework.exceptions import (
     APIException,
-    ValidationError,
-    PermissionDenied,
-    NotFound,
     AuthenticationFailed,
+    NotFound,
+    PermissionDenied,
+    ValidationError,
 )
-import logging
+from rest_framework.response import Response
+from rest_framework.views import exception_handler
 
 logger = logging.getLogger(__name__)
 
@@ -44,14 +45,7 @@ def custom_exception_handler(exc, context):
     response = exception_handler(exc, context)
 
     # Log the exception
-    logger.error(
-        f"API Exception: {exc}",
-        exc_info=True,
-        extra={
-            'context': context,
-            'request': context.get('request')
-        }
-    )
+    logger.error(f'API Exception: {exc}', exc_info=True, extra={'context': context, 'request': context.get('request')})
 
     # Handle Django validation errors
     if isinstance(exc, DjangoValidationError):
@@ -67,20 +61,15 @@ def custom_exception_handler(exc, context):
                 'errors': {
                     'code': 'internal_server_error',
                     'message': 'An unexpected error occurred. Please try again later.',
-                    'details': str(exc) if hasattr(exc, '__str__') else None
+                    'details': str(exc) if hasattr(exc, '__str__') else None,
                 },
-                'meta': {}
+                'meta': {},
             },
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
     # Customize the response format
-    custom_response = {
-        'success': False,
-        'data': None,
-        'errors': format_error_response(exc, response),
-        'meta': {}
-    }
+    custom_response = {'success': False, 'data': None, 'errors': format_error_response(exc, response), 'meta': {}}
 
     response.data = custom_response
     return response
@@ -171,6 +160,7 @@ class BusinessLogicError(APIException):
     Use this for domain-specific errors that should be communicated
     to the client.
     """
+
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = 'A business logic error occurred.'
     default_code = 'business_logic_error'
@@ -180,6 +170,7 @@ class ResourceConflictError(APIException):
     """
     Exception for resource conflicts (e.g., duplicate resources).
     """
+
     status_code = status.HTTP_409_CONFLICT
     default_detail = 'The resource conflicts with an existing resource.'
     default_code = 'resource_conflict'
@@ -189,6 +180,7 @@ class ServiceUnavailableError(APIException):
     """
     Exception for service unavailability.
     """
+
     status_code = status.HTTP_503_SERVICE_UNAVAILABLE
     default_detail = 'The service is temporarily unavailable.'
     default_code = 'service_unavailable'

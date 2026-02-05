@@ -5,6 +5,7 @@ These mixins provide reusable model behaviors that can be added to any model.
 """
 
 import uuid
+
 from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify
@@ -110,12 +111,7 @@ class PublishableModel(models.Model):
         PUBLISHED = 'published', 'Published'
         ARCHIVED = 'archived', 'Archived'
 
-    status = models.CharField(
-        max_length=20,
-        choices=PublishStatus.choices,
-        default=PublishStatus.DRAFT,
-        db_index=True
-    )
+    status = models.CharField(max_length=20, choices=PublishStatus.choices, default=PublishStatus.DRAFT, db_index=True)
     published_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
@@ -145,18 +141,10 @@ class AuthorModel(models.Model):
     """
 
     created_by = models.ForeignKey(
-        'users.User',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='%(class)s_created'
+        'users.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='%(class)s_created'
     )
     updated_by = models.ForeignKey(
-        'users.User',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='%(class)s_updated'
+        'users.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='%(class)s_updated'
     )
 
     class Meta:

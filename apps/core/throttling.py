@@ -13,6 +13,7 @@ class BurstRateThrottle(UserRateThrottle):
 
     Limits short-term burst of requests from a user.
     """
+
     scope = 'user_burst'
 
     def allow_request(self, request, view):
@@ -33,6 +34,7 @@ class SustainedRateThrottle(UserRateThrottle):
 
     Limits the total number of requests a user can make per hour.
     """
+
     scope = 'user_sustained'
 
     def allow_request(self, request, view):
@@ -51,6 +53,7 @@ class StrictAnonRateThrottle(AnonRateThrottle):
     """
     Stricter rate limit for anonymous users.
     """
+
     rate = '5/min'
 
 
@@ -60,5 +63,6 @@ class AuthenticationThrottle(AnonRateThrottle):
 
     More restrictive to prevent brute force attacks.
     """
+
     scope = 'auth'
     rate = '5/min'

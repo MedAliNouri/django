@@ -5,11 +5,10 @@ This file contains settings that are common across all environments.
 Environment-specific settings should go in dev.py, prod.py, etc.
 """
 
-import os
-from pathlib import Path
 from datetime import timedelta
+from pathlib import Path
 
-from decouple import config, Csv
+from decouple import Csv, config
 
 # Build paths inside the project
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -133,7 +132,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
         'OPTIONS': {
             'min_length': 8,
-        }
+        },
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -239,11 +238,7 @@ SIMPLE_JWT = {
 }
 
 # CORS Settings
-CORS_ALLOWED_ORIGINS = config(
-    'CORS_ALLOWED_ORIGINS',
-    default='http://localhost:3000,http://localhost:8000',
-    cast=Csv()
-)
+CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='http://localhost:3000,http://localhost:8000', cast=Csv())
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
     'accept',

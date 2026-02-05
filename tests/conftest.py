@@ -20,7 +20,6 @@ def clear_cache():
 def disable_signals():
     """Disable Django signals for tests."""
     from django.db.models import signals
-    from django.dispatch import Signal
 
     # Store original signal receivers
     original_receivers = {}

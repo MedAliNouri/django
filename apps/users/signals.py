@@ -4,10 +4,11 @@ Signal handlers for User models.
 This module contains signal handlers for User-related events.
 """
 
+import logging
+
+from django.core.cache import cache
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
-from django.core.cache import cache
-import logging
 
 from .models import User, UserProfile
 
@@ -21,7 +22,7 @@ def create_user_profile(sender, instance, created, **kwargs):
     """
     if created:
         UserProfile.objects.get_or_create(user=instance)
-        logger.info(f"Profile created for user: {instance.email}")
+        logger.info(f'Profile created for user: {instance.email}')
 
 
 @receiver(post_save, sender=User)
@@ -39,10 +40,10 @@ def log_user_deletion(sender, instance, **kwargs):
     Log user deletion for audit purposes.
     """
     logger.warning(
-        f"User deleted: {instance.email}",
+        f'User deleted: {instance.email}',
         extra={
             'user_id': str(instance.id),
             'email': instance.email,
-            'is_hard_delete': not hasattr(instance, 'is_deleted') or instance.is_deleted
-        }
+            'is_hard_delete': not hasattr(instance, 'is_deleted') or instance.is_deleted,
+        },
     )

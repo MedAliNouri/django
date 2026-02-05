@@ -4,8 +4,9 @@ API v1 serializers for User endpoints.
 This module contains serializers for the User API v1.
 """
 
-from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
+from rest_framework import serializers
+
 from apps.core.serializers import BaseModelSerializer, WriteableModelSerializer
 from apps.users.models import User, UserProfile
 
@@ -103,16 +104,9 @@ class UserCreateSerializer(WriteableModelSerializer):
     """
 
     password = serializers.CharField(
-        write_only=True,
-        required=True,
-        validators=[validate_password],
-        style={'input_type': 'password'}
+        write_only=True, required=True, validators=[validate_password], style={'input_type': 'password'}
     )
-    password_confirm = serializers.CharField(
-        write_only=True,
-        required=True,
-        style={'input_type': 'password'}
-    )
+    password_confirm = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
 
     class Meta:
         model = User
@@ -131,9 +125,7 @@ class UserCreateSerializer(WriteableModelSerializer):
         Validate passwords match.
         """
         if attrs['password'] != attrs['password_confirm']:
-            raise serializers.ValidationError({
-                'password_confirm': 'Passwords do not match'
-            })
+            raise serializers.ValidationError({'password_confirm': 'Passwords do not match'})
         return attrs
 
     def create(self, validated_data):
@@ -203,10 +195,7 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
         """
         from apps.users.services import UserService
 
-        profile = UserService.update_user_profile(
-            instance.user,
-            **validated_data
-        )
+        profile = UserService.update_user_profile(instance.user, **validated_data)
         return profile
 
 
@@ -215,31 +204,18 @@ class ChangePasswordSerializer(serializers.Serializer):
     Serializer for changing password.
     """
 
-    old_password = serializers.CharField(
-        required=True,
-        write_only=True,
-        style={'input_type': 'password'}
-    )
+    old_password = serializers.CharField(required=True, write_only=True, style={'input_type': 'password'})
     new_password = serializers.CharField(
-        required=True,
-        write_only=True,
-        validators=[validate_password],
-        style={'input_type': 'password'}
+        required=True, write_only=True, validators=[validate_password], style={'input_type': 'password'}
     )
-    new_password_confirm = serializers.CharField(
-        required=True,
-        write_only=True,
-        style={'input_type': 'password'}
-    )
+    new_password_confirm = serializers.CharField(required=True, write_only=True, style={'input_type': 'password'})
 
     def validate(self, attrs):
         """
         Validate new passwords match.
         """
         if attrs['new_password'] != attrs['new_password_confirm']:
-            raise serializers.ValidationError({
-                'new_password_confirm': 'Passwords do not match'
-            })
+            raise serializers.ValidationError({'new_password_confirm': 'Passwords do not match'})
         return attrs
 
     def save(self, **kwargs):
@@ -249,11 +225,7 @@ class ChangePasswordSerializer(serializers.Serializer):
         from apps.users.services import UserService
 
         user = self.context['request'].user
-        UserService.change_password(
-            user,
-            self.validated_data['old_password'],
-            self.validated_data['new_password']
-        )
+        UserService.change_password(user, self.validated_data['old_password'], self.validated_data['new_password'])
         return user
 
 

@@ -6,6 +6,7 @@ This module provides reusable test fixtures for the users app.
 
 import pytest
 from django.contrib.auth import get_user_model
+
 from apps.users.models import UserProfile
 
 User = get_user_model()
@@ -73,7 +74,7 @@ def user_with_profile(db, user):
             'company': 'Test Company',
             'job_title': 'Software Engineer',
             'location': 'San Francisco, CA',
-        }
+        },
     )
     return user
 
@@ -82,6 +83,7 @@ def user_with_profile(db, user):
 def api_client():
     """DRF API client."""
     from rest_framework.test import APIClient
+
     return APIClient()
 
 

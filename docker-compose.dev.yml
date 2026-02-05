@@ -6,11 +6,6 @@ services:
       file: docker-compose.yml
       service: db
 
-  redis:
-    extends:
-      file: docker-compose.yml
-      service: redis
-
   web:
     build:
       context: .
@@ -32,115 +27,10 @@ services:
       - DB_PASSWORD=${DB_PASSWORD:-django_password}
       - DB_HOST=db
       - DB_PORT=5432
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8000
     depends_on:
       db:
         condition: service_healthy
-      redis:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - django_network
-
-  celery_worker:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.dev
-    container_name: django_celery_worker_dev
-    command: celery -A config worker -l INFO --concurrency=2
-    volumes:
-      - .:/app
-    environment:
-      - DJANGO_SETTINGS_MODULE=config.settings.dev
-      - DEBUG=True
-      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
-      - DB_NAME=${DB_NAME:-django_db}
-      - DB_USER=${DB_USER:-django_user}
-      - DB_PASSWORD=${DB_PASSWORD:-django_password}
-      - DB_HOST=db
-      - DB_PORT=5432
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - django_network
-
-  celery_beat:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.dev
-    container_name: django_celery_beat_dev
-    command: celery -A config beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
-    volumes:
-      - .:/app
-    environment:
-      - DJANGO_SETTINGS_MODULE=config.settings.dev
-      - DEBUG=True
-      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
-      - DB_NAME=${DB_NAME:-django_db}
-      - DB_USER=${DB_USER:-django_user}
-      - DB_PASSWORD=${DB_PASSWORD:-django_password}
-      - DB_HOST=db
-      - DB_PORT=5432
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - django_network
-
-  flower:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.dev
-    container_name: django_flower_dev
-    command: celery -A config flower --port=5555
-    volumes:
-      - .:/app
-    ports:
-      - "5555:5555"
-    environment:
-      - DJANGO_SETTINGS_MODULE=config.settings.dev
-      - DEBUG=True
-      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
-      - DB_NAME=${DB_NAME:-django_db}
-      - DB_USER=${DB_USER:-django_user}
-      - DB_PASSWORD=${DB_PASSWORD:-django_password}
-      - DB_HOST=db
-      - DB_PORT=5432
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
-    depends_on:
-      - redis
-      - celery_worker
-    restart: unless-stopped
-    networks:
-      - django_network
-
-  mailpit:
-    image: axllent/mailpit:latest
-    container_name: django_mailpit_dev
-    ports:
-      - "8025:8025"
-      - "1025:1025"
-    environment:
-      MP_SMTP_AUTH_ACCEPT_ANY: 1
-      MP_SMTP_AUTH_ALLOW_INSECURE: 1
     restart: unless-stopped
     networks:
       - django_network

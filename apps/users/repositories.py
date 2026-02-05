@@ -5,7 +5,6 @@ This module abstracts database operations behind a clean interface.
 All database queries should go through repositories.
 """
 
-
 from django.db.models import QuerySet
 
 from .models import User, UserProfile

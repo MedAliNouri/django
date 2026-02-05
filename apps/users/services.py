@@ -58,11 +58,6 @@ class UserService:
         # Invalidate user stats cache
         cache.delete('user_stats')
 
-        # Send welcome email (async via Celery)
-        from .tasks import send_welcome_email
-
-        send_welcome_email.delay(user.id)
-
         return user
 
     @staticmethod

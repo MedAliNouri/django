@@ -42,10 +42,6 @@ MIGRATION_MODULES = DisableMigrations()
 # Email backend for tests
 EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 
-# Celery - Eager execution in tests
-CELERY_TASK_ALWAYS_EAGER = True
-CELERY_TASK_EAGER_PROPAGATES = True
-
 # Disable throttling in tests
 REST_FRAMEWORK['DEFAULT_THROTTLE_CLASSES'] = []
 

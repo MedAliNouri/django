@@ -23,8 +23,6 @@ up: ## Start development environment
 	@echo "$(YELLOW)API: http://localhost:8000$(NC)"
 	@echo "$(YELLOW)Admin: http://localhost:8000/admin$(NC)"
 	@echo "$(YELLOW)API Docs: http://localhost:8000/api/docs$(NC)"
-	@echo "$(YELLOW)Mailpit: http://localhost:8025$(NC)"
-	@echo "$(YELLOW)Flower: http://localhost:5555$(NC)"
 
 down: ## Stop development environment
 	@echo "$(BLUE)Stopping development environment...$(NC)"
@@ -38,9 +36,6 @@ logs: ## Show logs
 
 logs-web: ## Show web container logs
 	docker-compose -f docker-compose.dev.yml logs -f web
-
-logs-celery: ## Show celery worker logs
-	docker-compose -f docker-compose.dev.yml logs -f celery_worker
 
 shell: ## Open Django shell
 	docker-compose -f docker-compose.dev.yml exec web python manage.py shell

@@ -59,29 +59,17 @@ LOGGING['root']['handlers'] = ['console', 'file']
 SENTRY_DSN = config('SENTRY_DSN', default='')
 if SENTRY_DSN:
     import sentry_sdk
-    from sentry_sdk.integrations.celery import CeleryIntegration
     from sentry_sdk.integrations.django import DjangoIntegration
-    from sentry_sdk.integrations.redis import RedisIntegration
 
     sentry_sdk.init(
         dsn=SENTRY_DSN,
         integrations=[
             DjangoIntegration(),
-            CeleryIntegration(),
-            RedisIntegration(),
         ],
         traces_sample_rate=0.1,
         send_default_pii=False,
         environment='production',
     )
-
-# Cache - Production settings with longer timeout
-CACHES['default']['TIMEOUT'] = 600
-CACHES['default']['OPTIONS']['CONNECTION_POOL_CLASS_KWARGS']['max_connections'] = 100
-
-# Celery - Production settings
-CELERY_WORKER_PREFETCH_MULTIPLIER = 1
-CELERY_WORKER_MAX_TASKS_PER_CHILD = 500
 
 # Email - Production SMTP settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

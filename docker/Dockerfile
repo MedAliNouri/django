@@ -20,9 +20,9 @@ RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Install Python dependencies
-COPY requirements/prod.txt /tmp/requirements.txt
+COPY requirements /tmp/requirements
 RUN pip install --upgrade pip setuptools wheel && \
-    pip install -r /tmp/requirements.txt
+    pip install -r /tmp/requirements/prod.txt
 
 # Runtime stage
 FROM python:3.11-slim-bookworm

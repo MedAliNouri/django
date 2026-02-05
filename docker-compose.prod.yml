@@ -43,6 +43,7 @@ services:
       - django_network
 
 volumes:
+  postgres_data:
   static_volume:
   media_volume:
 

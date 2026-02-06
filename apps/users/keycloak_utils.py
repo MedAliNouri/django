@@ -193,19 +193,38 @@ def get_or_create_user_from_keycloak(token_payload: dict) -> User:
     Returns:
         User instance
     """
+    # Try to get email, fallback to preferred_username
     email = token_payload.get('email')
     if not email:
-        raise ValueError('Email not found in token payload')
+        # Use preferred_username as email
+        username = token_payload.get('preferred_username')
+        if not username:
+            raise ValueError('Neither email nor preferred_username found in token payload')
+
+        # If username looks like email, use it; otherwise create email-like format
+        if '@' in username:
+            email = username
+        else:
+            # Create email from username
+            email = f'{username}@keycloak.local'
+
+        logger.info(f'No email in token, using generated email: {email}')
 
     # Extract user information from token
     first_name = token_payload.get('given_name', '')
     last_name = token_payload.get('family_name', '')
     is_email_verified = token_payload.get('email_verified', False)
     keycloak_id = token_payload.get('sub')  # Keycloak user ID
+    username = token_payload.get('preferred_username', '')
 
     # Get or create user
     user, created = User.objects.get_or_create(
-        email=email, defaults={'first_name': first_name, 'last_name': last_name, 'is_active': True}
+        email=email,
+        defaults={
+            'first_name': first_name or username,  # Use username if first_name is empty
+            'last_name': last_name,
+            'is_active': True
+        }
     )
 
     # Update user information if exists

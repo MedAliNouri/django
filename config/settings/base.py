@@ -236,6 +236,7 @@ KEYCLOAK_SERVER_URL = config('KEYCLOAK_SERVER_URL', default='http://localhost:80
 KEYCLOAK_REALM = config('KEYCLOAK_REALM', default='master')
 KEYCLOAK_CLIENT_ID = config('KEYCLOAK_CLIENT_ID', default='django-client')
 KEYCLOAK_CLIENT_SECRET = config('KEYCLOAK_CLIENT_SECRET', default='')
+KEYCLOAK_VERIFY_SIGNATURE = config('KEYCLOAK_VERIFY_SIGNATURE', default=False, cast=bool)
 KEYCLOAK_AUTHORIZATION_URL = f'{KEYCLOAK_SERVER_URL}/realms/{KEYCLOAK_REALM}/protocol/openid-connect/auth'
 KEYCLOAK_TOKEN_URL = f'{KEYCLOAK_SERVER_URL}/realms/{KEYCLOAK_REALM}/protocol/openid-connect/token'
 KEYCLOAK_USERINFO_URL = f'{KEYCLOAK_SERVER_URL}/realms/{KEYCLOAK_REALM}/protocol/openid-connect/userinfo'

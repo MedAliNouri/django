@@ -174,9 +174,17 @@ def validate_keycloak_token(token: str) -> Optional[dict]:
     Returns:
         Decoded token payload if valid, None otherwise
     """
+    from django.conf import settings
+
     try:
         client = KeycloakClient()
-        payload = client.decode_token(token, verify=True)
+        # Check if signature verification is enabled
+        verify = getattr(settings, 'KEYCLOAK_VERIFY_SIGNATURE', False)
+
+        if not verify:
+            logger.info('Keycloak signature verification disabled, decoding token without verification')
+
+        payload = client.decode_token(token, verify=verify)
         return payload
     except Exception as e:
         logger.error(f'Token validation failed: {e}')

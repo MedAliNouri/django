@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.users.keycloak_utils import KeycloakClient, get_or_create_user_from_keycloak, sync_user_with_keycloak
-from apps.users.api.v1.serializers import UserSerializer
+from apps.users.api.v1.serializers import UserDetailSerializer
 
 from .keycloak_serializers import (
     KeycloakLoginSerializer,
@@ -69,7 +69,7 @@ class KeycloakLoginView(APIView):
                 'expires_in': token_response['expires_in'],
                 'refresh_expires_in': token_response.get('refresh_expires_in'),
                 'token_type': token_response.get('token_type', 'Bearer'),
-                'user': UserSerializer(user).data,
+                'user': UserDetailSerializer(user).data,
             }
 
             return Response(response_data, status=status.HTTP_200_OK)
@@ -122,7 +122,7 @@ class KeycloakRefreshView(APIView):
                 'expires_in': token_response['expires_in'],
                 'refresh_expires_in': token_response.get('refresh_expires_in'),
                 'token_type': token_response.get('token_type', 'Bearer'),
-                'user': UserSerializer(user).data,
+                'user': UserDetailSerializer(user).data,
             }
 
             return Response(response_data, status=status.HTTP_200_OK)

@@ -70,11 +70,20 @@ In Keycloak Admin Console:
 
 ### Step 5: Test the Integration
 
-#### Option A: Using the Test Script
+#### Option A: Using the Test Script (Recommended)
+
+The test script automatically reads configuration from `.env` file:
 
 ```bash
 ./test_keycloak_flow.sh
 ```
+
+The script will:
+- ✅ Load configuration from `.env` automatically
+- ✅ Get token from Keycloak
+- ✅ Test Django API endpoints
+- ✅ Verify user auto-creation
+- ✅ Show detailed results with colors
 
 #### Option B: Manual Testing
 

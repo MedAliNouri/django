@@ -12,6 +12,17 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# Load .env file if it exists
+if [ -f .env ]; then
+    echo "Loading configuration from .env file..."
+    # Export variables from .env file
+    set -a
+    source .env
+    set +a
+else
+    echo -e "${YELLOW}Warning: .env file not found. Using environment variables or defaults.${NC}"
+fi
+
 # Configuration (update these values)
 KEYCLOAK_URL="${KEYCLOAK_SERVER_URL:-http://localhost:8080}"
 KEYCLOAK_REALM="${KEYCLOAK_REALM:-master}"
@@ -35,8 +46,13 @@ command -v jq >/dev/null 2>&1 || { echo -e "${RED}Error: jq is required but not 
 # Check if client secret is set
 if [ -z "$CLIENT_SECRET" ]; then
     echo -e "${RED}Error: KEYCLOAK_CLIENT_SECRET is not set${NC}"
-    echo -e "${YELLOW}Set it with: export KEYCLOAK_CLIENT_SECRET='your-secret'${NC}"
-    echo -e "${YELLOW}Or update the .env file${NC}"
+    echo -e "${YELLOW}Please add KEYCLOAK_CLIENT_SECRET to your .env file:${NC}"
+    echo -e "${YELLOW}  1. Get the secret from Keycloak Admin Console${NC}"
+    echo -e "${YELLOW}  2. Edit .env file and set: KEYCLOAK_CLIENT_SECRET=your-secret${NC}"
+    echo -e "${YELLOW}  3. Run this script again${NC}"
+    echo ""
+    echo -e "${YELLOW}Or export it temporarily:${NC}"
+    echo -e "${YELLOW}  export KEYCLOAK_CLIENT_SECRET='your-secret'${NC}"
     exit 1
 fi
 

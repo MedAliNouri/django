@@ -20,6 +20,7 @@ from .keycloak_views import (
     KeycloakRefreshView,
     KeycloakUserInfoView,
 )
+from .debug_views import KeucloakTokenDebugView
 
 # Create router and register viewsets
 router = DefaultRouter()
@@ -36,6 +37,7 @@ urlpatterns = [
     path('auth/keycloak/logout/', KeycloakLogoutView.as_view(), name='keycloak_logout'),
     path('auth/keycloak/userinfo/', KeycloakUserInfoView.as_view(), name='keycloak_userinfo'),
     path('auth/keycloak/config/', KeycloakConfigView.as_view(), name='keycloak_config'),
+    path('auth/keycloak/debug/', KeucloakTokenDebugView.as_view(), name='keycloak_debug'),
     # User endpoints
     path('', include(router.urls)),
 ]

@@ -140,6 +140,12 @@ PASSWORD_HASHERS = [
 # Custom User Model
 AUTH_USER_MODEL = 'users.User'
 
+# Authentication Backends
+AUTHENTICATION_BACKENDS = [
+    'apps.users.keycloak_auth.KeycloakAuthenticationBackend',  # Keycloak authentication
+    'django.contrib.auth.backends.ModelBackend',  # Default Django authentication
+]
+
 # Internationalization
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
@@ -223,6 +229,17 @@ SIMPLE_JWT = {
     'TOKEN_TYPE_CLAIM': 'token_type',
     'JTI_CLAIM': 'jti',
 }
+
+# Keycloak Settings
+KEYCLOAK_SERVER_URL = config('KEYCLOAK_SERVER_URL', default='http://localhost:8080')
+KEYCLOAK_REALM = config('KEYCLOAK_REALM', default='master')
+KEYCLOAK_CLIENT_ID = config('KEYCLOAK_CLIENT_ID', default='django-client')
+KEYCLOAK_CLIENT_SECRET = config('KEYCLOAK_CLIENT_SECRET', default='')
+KEYCLOAK_AUTHORIZATION_URL = f'{KEYCLOAK_SERVER_URL}/realms/{KEYCLOAK_REALM}/protocol/openid-connect/auth'
+KEYCLOAK_TOKEN_URL = f'{KEYCLOAK_SERVER_URL}/realms/{KEYCLOAK_REALM}/protocol/openid-connect/token'
+KEYCLOAK_USERINFO_URL = f'{KEYCLOAK_SERVER_URL}/realms/{KEYCLOAK_REALM}/protocol/openid-connect/userinfo'
+KEYCLOAK_JWKS_URL = f'{KEYCLOAK_SERVER_URL}/realms/{KEYCLOAK_REALM}/protocol/openid-connect/certs'
+KEYCLOAK_LOGOUT_URL = f'{KEYCLOAK_SERVER_URL}/realms/{KEYCLOAK_REALM}/protocol/openid-connect/logout'
 
 # CORS Settings
 CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='http://localhost:3000,http://localhost:8000', cast=Csv())

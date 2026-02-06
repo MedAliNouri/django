@@ -13,16 +13,29 @@ from rest_framework_simplejwt.views import (
 )
 
 from .views import UserViewSet
+from .keycloak_views import (
+    KeycloakConfigView,
+    KeycloakLoginView,
+    KeycloakLogoutView,
+    KeycloakRefreshView,
+    KeycloakUserInfoView,
+)
 
 # Create router and register viewsets
 router = DefaultRouter()
 router.register(r'users', UserViewSet, basename='user')
 
 urlpatterns = [
-    # JWT Authentication
+    # JWT Authentication (Django)
     path('auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('auth/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    # Keycloak Authentication
+    path('auth/keycloak/login/', KeycloakLoginView.as_view(), name='keycloak_login'),
+    path('auth/keycloak/refresh/', KeycloakRefreshView.as_view(), name='keycloak_refresh'),
+    path('auth/keycloak/logout/', KeycloakLogoutView.as_view(), name='keycloak_logout'),
+    path('auth/keycloak/userinfo/', KeycloakUserInfoView.as_view(), name='keycloak_userinfo'),
+    path('auth/keycloak/config/', KeycloakConfigView.as_view(), name='keycloak_config'),
     # User endpoints
     path('', include(router.urls)),
 ]

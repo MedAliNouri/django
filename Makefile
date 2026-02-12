@@ -111,16 +111,16 @@ format-check: ## Check code formatting without making changes
 validate: ## Run complete validation suite (format check, lint, type-check, test)
 	@echo "$(BLUE)Running validation suite...$(NC)"
 	@echo "$(YELLOW)1/4 Checking code formatting...$(NC)"
-	@docker-compose -f docker-compose.dev.yml exec web ruff format --check apps config tests || (echo "$(RED)✗ Format check failed$(NC)" && exit 1)
+	@docker-compose -f docker-compose.dev.yml run --rm --no-deps web ruff format --check apps config tests || (echo "$(RED)✗ Format check failed$(NC)" && exit 1)
 	@echo "$(GREEN)✓ Format check passed$(NC)"
 	@echo "$(YELLOW)2/4 Running linters...$(NC)"
-	@docker-compose -f docker-compose.dev.yml exec web ruff check apps config tests || (echo "$(RED)✗ Linting failed$(NC)" && exit 1)
+	@docker-compose -f docker-compose.dev.yml run --rm --no-deps web ruff check apps config tests || (echo "$(RED)✗ Linting failed$(NC)" && exit 1)
 	@echo "$(GREEN)✓ Linting passed$(NC)"
 	@echo "$(YELLOW)3/4 Running type checking...$(NC)"
-	@docker-compose -f docker-compose.dev.yml exec web mypy apps config || (echo "$(RED)✗ Type checking failed$(NC)" && exit 1)
+	@docker-compose -f docker-compose.dev.yml run --rm --no-deps web mypy apps config || (echo "$(RED)✗ Type checking failed$(NC)" && exit 1)
 	@echo "$(GREEN)✓ Type checking passed$(NC)"
 	@echo "$(YELLOW)4/4 Running tests...$(NC)"
-	@docker-compose -f docker-compose.dev.yml exec web pytest || (echo "$(RED)✗ Tests failed$(NC)" && exit 1)
+	@docker-compose -f docker-compose.dev.yml run --rm web pytest || (echo "$(RED)✗ Tests failed$(NC)" && exit 1)
 	@echo "$(GREEN)✓ Tests passed$(NC)"
 	@echo "$(GREEN)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"
 	@echo "$(GREEN)✓ All validation checks passed!$(NC)"
